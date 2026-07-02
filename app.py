@@ -19,18 +19,7 @@ INPUT_SHAPE = (150, 150, 3)
 
 @st.cache_resource
 def load_model():
-    # Reconstruire EXACTEMENT la meme architecture qu'a l'entrainement
-    base_model = MobileNetV2(weights="imagenet", include_top=False, input_shape=INPUT_SHAPE)
-    base_model.trainable = False
-    model = Sequential([
-        base_model,
-        GlobalAveragePooling2D(),
-        Dropout(0.3),
-        Dense(128, activation="relu"),
-        Dense(1, activation="sigmoid")
-    ])
-    model.load_weights("model_cats_dogs.weights.h5", skip_mismatch=True)
-    return model
+    return tf.keras.models.load_model("model_cats_dogs.h5")
 
 model = load_model()
 
