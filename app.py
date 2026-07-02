@@ -1,22 +1,38 @@
 import os
-os.environ["TF_USE_LEGACY_KERAS"] = "1"   # DOIT être avant import tensorflow
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
 import streamlit as st
 import numpy as np
 from PIL import Image
 import tensorflow as tf
+from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import GlobalAveragePooling2D, Dropout, Dense
 
 st.set_page_config(page_title="Chat ou Chien ?", page_icon="🐾")
 st.title("🐱 Chat ou Chien 🐶")
 st.write("Chargez une image et le modele predit la classe.")
 
+IMG_SHAPE = (150, 150)
+INPUT_SHAPE = (150, 150, 3)
+
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model("model_cats_dogs.keras")
+    # Reconstruire EXACTEMENT la meme architecture qu'a l'entrainement
+    base_model = MobileNetV2(weights=None, include_top=False, input_shape=INPUT_SHAPE)
+    base_model.trainable = False
+    model = Sequential([
+        base_model,
+        GlobalAveragePooling2D(),
+        Dropout(0.3),
+        Dense(128, activation="relu"),
+        Dense(1, activation="sigmoid")
+    ])
+    model.load_weights("model_cats_dogs.weights.h5")
+    return model
 
 model = load_model()
-IMG_SHAPE = (150, 150)
 
 file = st.file_uploader("Image (jpg/png)", type=["jpg", "jpeg", "png"])
 if file is not None:
