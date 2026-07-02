@@ -1,3 +1,5 @@
+import os
+os.environ["TF_USE_LEGACY_KERAS"] = "1"   # DOIT être avant import tensorflow
 
 import streamlit as st
 import numpy as np
